@@ -4,10 +4,12 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.decomposition import PCA
+import subprocess
 
 OUTPUT_FOLDER = 'output'
+INKSCAPE_PATH = "/Applications/Inkscape.app/Contents/MacOS/inkscape"  # dopasuj do środowiska
 
-def analyze_lsms(df, chart_type, colors=None):
+def analyze_lsms(df, chart_type, colors=None, custom_title=None, x_label=None, y_label=None):
     df = df.copy()
     df.columns = [col.strip().lower() for col in df.columns]
     df = df.rename(columns=lambda x: x.strip())
@@ -21,25 +23,27 @@ def analyze_lsms(df, chart_type, colors=None):
         raise ValueError("No numeric data to plot.")
 
     if chart_type == 'bar':
-        image_path = os.path.join(OUTPUT_FOLDER, 'lsms_bar.svg')
+        base_name = 'lsms_bar'
+        svg_path = os.path.join(OUTPUT_FOLDER, f'{base_name}.svg')
+        emf_path = os.path.join(OUTPUT_FOLDER, f'{base_name}.emf')
+
         plt.figure(figsize=(14, 8))
 
         color_list = [colors.get(compound, None) for compound in df.index] if colors else None
+        df.T.plot(kind='bar', stacked=True, ax=plt.gca(), color=color_list)
 
-        df.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=color_list)
-
-        plt.title("LS/MS – Signal Intensity")
-        plt.xlabel("Sample")
-        plt.ylabel("Signal Intensity")
+        plt.title(custom_title.strip() if custom_title else "LS/MS – Signal Intensity")
+        plt.xlabel(x_label.strip() if x_label else "Sample")
+        plt.ylabel(y_label.strip() if y_label else "Signal Intensity")
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
         plt.tight_layout()
-        plt.savefig(image_path, format='svg')
+        plt.savefig(svg_path, format='svg', bbox_inches='tight')
         plt.close()
 
-        return {"tytul": "LS/MS – Signal Intensity", "img": f"/output/{os.path.basename(image_path)}"}
-
     elif chart_type == 'pca':
-        image_path = os.path.join(OUTPUT_FOLDER, 'lsms_pca.svg')
+        base_name = 'lsms_pca'
+        svg_path = os.path.join(OUTPUT_FOLDER, f'{base_name}.svg')
+        emf_path = os.path.join(OUTPUT_FOLDER, f'{base_name}.emf')
 
         pca = PCA(n_components=2)
         components = pca.fit_transform(df.T)
@@ -47,26 +51,34 @@ def analyze_lsms(df, chart_type, colors=None):
         plt.figure(figsize=(12, 8))
 
         if colors:
-            color_list = []
-            for sample in df.columns:
-                color_list.append(colors.get(sample, '#000000'))
+            color_list = [colors.get(sample, '#000000') for sample in df.columns]
         else:
             color_list = None
 
-        plt.scatter(
-            components[:, 0],
-            components[:, 1],
-            c=color_list
-        )
+        plt.scatter(components[:, 0], components[:, 1], c=color_list)
 
-        plt.title("LS/MS – PCA")
-        plt.xlabel("Principal Component 1")
-        plt.ylabel("Principal Component 2")
+        plt.title(custom_title.strip() if custom_title else "LS/MS – PCA")
+        plt.xlabel(x_label.strip() if x_label else "Principal Component 1")
+        plt.ylabel(y_label.strip() if y_label else "Principal Component 2")
         plt.tight_layout()
-        plt.savefig(image_path, format='svg')
+        plt.savefig(svg_path, format='svg', bbox_inches='tight')
         plt.close()
-
-        return {"tytul": "LS/MS – PCA", "img": f"/output/{os.path.basename(image_path)}"}
 
     else:
         raise ValueError("Unsupported chart_type for LSMS")
+
+    try:
+        subprocess.run([
+            INKSCAPE_PATH,
+            svg_path,
+            "--export-type=emf",
+            "--export-filename", emf_path
+        ], check=True)
+    except Exception as e:
+        return {"error": f"Failed to convert SVG to EMF: {str(e)}"}
+
+    return {
+        "tytul": custom_title.strip() if custom_title else base_name.replace("_", " ").title(),
+        "img_svg": f"/output/{os.path.basename(svg_path)}",
+        "img_emf": f"/output/{os.path.basename(emf_path)}"
+    }

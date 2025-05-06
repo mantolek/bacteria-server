@@ -3,10 +3,12 @@ matplotlib.use('Agg')
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+import subprocess
 
 OUTPUT_FOLDER = 'output'
+INKSCAPE_PATH = "/Applications/Inkscape.app/Contents/MacOS/inkscape"  # dopasuj do systemu
 
-def analyze_correlations(df, chart_type, colors=None):
+def analyze_correlations(df, chart_type, colors=None, custom_title=None, x_label=None, y_label=None):
     df = df.copy()
     df.columns = [col.strip().lower() for col in df.columns]
     df = df.rename(columns={
@@ -15,7 +17,10 @@ def analyze_correlations(df, chart_type, colors=None):
     })
 
     if chart_type == 'scatter_reg':
-        image_path = os.path.join(OUTPUT_FOLDER, 'correlation.svg')
+        base_name = 'correlation'
+        svg_path = os.path.join(OUTPUT_FOLDER, f'{base_name}.svg')
+        emf_path = os.path.join(OUTPUT_FOLDER, f'{base_name}.emf')
+
         plt.figure(figsize=(12, 8))
 
         scatter_color = colors.get('scatter', 'b') if colors else 'b'
@@ -29,14 +34,28 @@ def analyze_correlations(df, chart_type, colors=None):
             line_kws={'color': line_color}
         )
 
-        plt.title("Correlation Between Parameters")
-        plt.xlabel("Parameter 1")
-        plt.ylabel("Parameter 2")
+        plt.title(custom_title.strip() if custom_title else "Correlation Between Parameters")
+        plt.xlabel(x_label.strip() if x_label else "Parameter 1")
+        plt.ylabel(y_label.strip() if y_label else "Parameter 2")
         plt.tight_layout()
-        plt.savefig(image_path, format='svg')
+        plt.savefig(svg_path, format='svg', bbox_inches='tight')
         plt.close()
 
-        return {"tytul": "Correlation Between Parameters", "img": f"/output/{os.path.basename(image_path)}"}
+        try:
+            subprocess.run([
+                INKSCAPE_PATH,
+                svg_path,
+                "--export-type=emf",
+                "--export-filename", emf_path
+            ], check=True)
+        except Exception as e:
+            return {"error": f"Failed to convert SVG to EMF: {str(e)}"}
+
+        return {
+            "tytul": custom_title.strip() if custom_title else "Correlation Between Parameters",
+            "img_svg": f"/output/{os.path.basename(svg_path)}",
+            "img_emf": f"/output/{os.path.basename(emf_path)}"
+        }
 
     else:
         raise ValueError("Unsupported chart_type for Correlations")

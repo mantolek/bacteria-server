@@ -92,24 +92,44 @@ def analyze():
         if analysis_type == 'QLF':
             groups = df['Group'].unique().tolist()
             colors = validate_colors(groups, colors)
-            result = analyze_qlf(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_qlf(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'Hyperspectral':
             groups = df['Group'].astype(str).str.strip().unique().tolist()
             if not colors:
                 colors = validate_colors(groups, None)
             else:
                 colors = {str(k).strip(): v for k, v in colors.items()}
-            result = analyze_hyperspectral(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_hyperspectral(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == '16S':
             groups = df['Taxon Name'].unique().tolist()
             colors = validate_colors(groups, colors)
-            result = analyze_16s(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_16s(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'LFC':
-            result = analyze_lfc(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_lfc(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'pH':
             groups = df['Group'].unique().tolist()
             colors = validate_colors(groups, colors)
-            result = analyze_ph(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_ph(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'CFU':
             df.columns = [col.strip().lower() for col in df.columns]
             df = df.rename(columns={
@@ -121,31 +141,63 @@ def analyze():
             })
             groups = df['Group'].unique().tolist()
             colors = validate_colors(groups, colors)
-            result = analyze_cfu(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_cfu(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'AlphaDiversity':
             groups = df['Group'].unique().tolist()
             colors = validate_colors(groups, colors)
-            result = analyze_alpha_diversity(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_alpha_diversity(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'BetaDiversity':
             groups = df['Group'].unique().tolist()
             colors = validate_colors(groups, colors)
-            result = analyze_beta_diversity(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_beta_diversity(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'LSMS':
             groups = df['Compound'].unique().tolist()
             colors = validate_colors(groups, colors)
-            result = analyze_lsms(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_lsms(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'Correlations':
-            result = analyze_correlations(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_correlations(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'FluorescenceOverTime':
-            result = analyze_fluorescence_over_time(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_fluorescence_over_time(df, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'ControlVsFn':
             groups = ['Control', 'Fn']
             colors = validate_colors(groups, colors)
-            result = analyze_control_vs_fn(xls, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+            result = analyze_control_vs_fn(xls, chart_type, colors, custom_title, x_label, y_label)
+
         elif analysis_type == 'SMDI':
             groups = df['Group'].unique().tolist()
             colors = validate_colors(groups, colors)
-            result = analyze_smdi(df, chart_type, colors)
+            custom_title = request.form.get('custom_title')
+            x_label = request.form.get('x_label')
+            y_label = request.form.get('y_label')
+
+            result = analyze_smdi(df, chart_type, colors, custom_title, x_label, y_label)
         else:
             return jsonify({"error": "Unsupported analysis_type"}), 400
 
@@ -160,3 +212,6 @@ def serve_output_file(filename):
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5050)
+
+# source venv/bin/activate
+# python app.py
