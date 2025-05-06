@@ -20,8 +20,5 @@ COPY . .
 # Instalacja zależności Pythona
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Ustaw port
-ENV PORT 5050
-
 # Komenda startowa
 CMD ["python", "app.py"]

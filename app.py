@@ -211,7 +211,10 @@ def serve_output_file(filename):
     return send_from_directory(OUTPUT_FOLDER, filename)
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5050)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+#     app.run(host="0.0.0.0", port=5050)
+
 
 # source venv/bin/activate
 # python app.py
