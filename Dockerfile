@@ -21,4 +21,4 @@ COPY . .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Komenda startowa
-CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "app:app"]
+CMD exec gunicorn --bind 0.0.0.0:${PORT} app:app
