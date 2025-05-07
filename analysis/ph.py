@@ -6,7 +6,8 @@ import seaborn as sns
 import subprocess
 
 OUTPUT_FOLDER = 'output'
-INKSCAPE_PATH = "/Applications/Inkscape.app/Contents/MacOS/inkscape"  # dostosuj do środowiska
+# INKSCAPE_PATH = "/Applications/Inkscape.app/Contents/MacOS/inkscape"
+INKSCAPE_PATH = "inkscape"
 
 def pascal_case_columns(df):
     df.columns = [' '.join(word.capitalize() for word in col.split()) for col in df.columns]

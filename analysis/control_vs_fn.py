@@ -7,7 +7,8 @@ import pandas as pd
 import subprocess
 
 OUTPUT_FOLDER = 'output'
-INKSCAPE_PATH = "/Applications/Inkscape.app/Contents/MacOS/inkscape"  # dostosuj do swojego systemu
+# INKSCAPE_PATH = "/Applications/Inkscape.app/Contents/MacOS/inkscape"
+INKSCAPE_PATH = "inkscape"
 
 def analyze_control_vs_fn(xls, chart_type, colors=None, custom_title=None, x_label=None, y_label=None):
     try:
